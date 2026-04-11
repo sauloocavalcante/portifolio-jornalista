@@ -7,34 +7,5 @@
 </head>
 <body>
     <script src="https://unpkg.com/netlify-cms@^2.0.0/dist/netlify-cms.js"></script>
-    <script>
-        CMS.init({
-            config: {
-                backend: {
-                    name: "github",
-                    repo: "sauloocavalcante/portifolio-jornalista",
-                    branch: "main"
-                },
-                media_folder: "imagens",
-                public_folder: "/imagens",
-                collections: [
-                    {
-                        name: "materias",
-                        label: "Matérias",
-                        folder: "materias",
-                        create: true,
-                        slug: "{{year}}-{{month}}-{{day}}-{{slug}}",
-                        fields: [
-                            { name: "titulo", label: "Título", widget: "string" },
-                            { name: "data", label: "Data", widget: "datetime", format: "YYYY-MM-DD" },
-                            { name: "resumo", label: "Resumo", widget: "text" },
-                            { name: "imagem", label: "Imagem", widget: "image", required: false },
-                            { name: "body", label: "Conteúdo", widget: "markdown" }
-                        ]
-                    }
-                ]
-            }
-        });
-    </script>
 </body>
 </html>
