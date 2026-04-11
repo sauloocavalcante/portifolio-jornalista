@@ -2,6 +2,7 @@ backend:
   name: github
   repo: sauloocavalcante/portifolio-jornalista
   branch: main
+  site_domain: portifolio-jornalista.netlify.app
 
 media_folder: "imagens"
 public_folder: "/imagens"
