@@ -1,8 +1,8 @@
 ---
-titulo: "Minha primeira matéria"
+titulo: Minha primeira matéria
 data: 2024-10-15
-resumo: "Este é um exemplo de como suas matérias vão aparecer"
-imagem: "https://picsum.photos/800/400"
+resumo: Este é um exemplo de como suas matérias vão aparecer
+imagem: /imagens/screenshot-from-2026-04-10-23-30-00.png
 ---
 
 ## Introdução
