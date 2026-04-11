@@ -3,38 +3,33 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Painel de Controle - Portfólio Jornalístico</title>
-    <link href="https://unpkg.com/netlify-cms@^2.0.0/dist/cms.css" rel="stylesheet" />
+    <title>Painel - Portfólio</title>
 </head>
 <body>
     <script src="https://unpkg.com/netlify-cms@^2.0.0/dist/netlify-cms.js"></script>
-    <script src="config.yml" type="text/yaml"></script>
-    
     <script>
-        // Configuração manual para GitHub (sem Netlify)
         CMS.init({
             config: {
                 backend: {
-                    name: 'github',
-                    repo: 'sauloocavalcante/portifolio-jornalista', 
-                    branch: 'main',
-                    base_url: 'https://api.github.com',
+                    name: "github",
+                    repo: "sauloocavalcante/portifolio-jornalista",
+                    branch: "main"
                 },
-                media_folder: 'imagens',
-                public_folder: '/imagens',
+                media_folder: "imagens",
+                public_folder: "/imagens",
                 collections: [
                     {
-                        name: 'materias',
-                        label: 'Matérias',
-                        folder: 'materias',
+                        name: "materias",
+                        label: "Matérias",
+                        folder: "materias",
                         create: true,
-                        slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
+                        slug: "{{year}}-{{month}}-{{day}}-{{slug}}",
                         fields: [
-                            { label: 'Título', name: 'titulo', widget: 'string' },
-                            { label: 'Data', name: 'data', widget: 'datetime', format: 'YYYY-MM-DD' },
-                            { label: 'Resumo', name: 'resumo', widget: 'text' },
-                            { label: 'Imagem de capa', name: 'imagem', widget: 'image', required: false },
-                            { label: 'Conteúdo', name: 'body', widget: 'markdown' }
+                            { name: "titulo", label: "Título", widget: "string" },
+                            { name: "data", label: "Data", widget: "datetime", format: "YYYY-MM-DD" },
+                            { name: "resumo", label: "Resumo", widget: "text" },
+                            { name: "imagem", label: "Imagem", widget: "image", required: false },
+                            { name: "body", label: "Conteúdo", widget: "markdown" }
                         ]
                     }
                 ]
