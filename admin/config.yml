@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo: sauloocavalcante/portifolio-jornalista  
+  repo: sauloocavalcante/portifolio-jornalista
   branch: main
 
 media_folder: "imagens"
