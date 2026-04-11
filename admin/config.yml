@@ -1,0 +1,20 @@
+backend:
+  name: github
+  repo: sauloocavalcante/portifolio-jornalista  
+  branch: main
+
+media_folder: "imagens"
+public_folder: "/imagens"
+
+collections:
+  - name: "materias"
+    label: "Matérias"
+    folder: "materias"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - { label: "Título", name: "titulo", widget: "string" }
+      - { label: "Data", name: "data", widget: "datetime", format: "YYYY-MM-DD" }
+      - { label: "Resumo", name: "resumo", widget: "text" }
+      - { label: "Imagem de capa", name: "imagem", widget: "image", required: false }
+      - { label: "Conteúdo", name: "body", widget: "markdown" }
