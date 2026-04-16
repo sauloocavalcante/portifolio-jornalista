@@ -75,9 +75,35 @@ function extrairMetadata(conteudoMd, nomeArquivo) {
         if (resumoMatch) metadata.resumo = resumoMatch[1];
         if (imagemMatch) metadata.imagem = imagemMatch[1];
         if (linkMatch) metadata.link = linkMatch[1];
+        
+        // Corrige encoding de caracteres especiais (português) nos metadados
+        metadata.titulo = corrigirEncoding(metadata.titulo);
+        metadata.resumo = corrigirEncoding(metadata.resumo);
     }
     
     return metadata;
+}
+
+function corrigirEncoding(texto) {
+    if (!texto) return texto;
+    
+    return texto
+        .replace(/Ã¡/g, 'á')
+        .replace(/Ã©/g, 'é')
+        .replace(/Ã­/g, 'í')
+        .replace(/Ã³/g, 'ó')
+        .replace(/Ãº/g, 'ú')
+        .replace(/Ã£/g, 'ã')
+        .replace(/Ãµ/g, 'õ')
+        .replace(/Ã§/g, 'ç')
+        .replace(/Ã€/g, 'À')
+        .replace(/Ã‰/g, 'É')
+        .replace(/Ã/g, 'Í')
+        .replace(/Ã“/g, 'Ó')
+        .replace(/Ãš/g, 'Ú')
+        .replace(/Ãƒ/g, 'Ã')
+        .replace(/Ã•/g, 'Õ')
+        .replace(/Ã‡/g, 'Ç');
 }
 
 function formatarData(dataString) {

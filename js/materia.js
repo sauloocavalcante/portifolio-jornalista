@@ -16,7 +16,7 @@ async function carregarMateria() {
         const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPOSITORIO}/contents/materias/${nomeArquivo}?ref=${BRANCH}`;
         const resposta = await fetch(url);
         const arquivo = await resposta.json();
-        const conteudo = atob(arquivo.content); // Decodifica base64
+        const conteudo = decodeURIComponent(escape(atob(arquivo.content.replace(/\n/g, ''))));
         
         // Extrai metadata e conteúdo
         const { metadata, conteudoHtml } = processarMarkdown(conteudo);
@@ -71,7 +71,7 @@ function processarMarkdown(mdTexto) {
     }
     
     // Converte Markdown básico para HTML
-    let html = conteudo;
+    let html = conteudo;    
     html = html.replace(/^# (.*$)/gm, '<h1>$1</h1>');
     html = html.replace(/^## (.*$)/gm, '<h2>$1</h2>');
     html = html.replace(/^### (.*$)/gm, '<h3>$1</h3>');
@@ -80,7 +80,7 @@ function processarMarkdown(mdTexto) {
     html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>');
     html = html.replace(/^\> (.*$)/gm, '<blockquote>$1</blockquote>');
     html = html.replace(/^\- (.*$)/gm, '<li>$1</li>');
-    html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+    html = html.replace(/(<li>[\s\S]*<\/li>)/, '<ul>$1</ul>');
     html = html.replace(/\n\n/g, '</p><p>');
     html = '<p>' + html + '</p>';
     html = html.replace(/<p><\/p>/g, '');
