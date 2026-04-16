@@ -17,5 +17,6 @@ collections:
       - { label: "Título", name: "titulo", widget: "string" }
       - { label: "Data", name: "data", widget: "datetime", format: "YYYY-MM-DD" }
       - { label: "Resumo", name: "resumo", widget: "text" }
+      - { label: "Link externo", name: "link", widget: "string", required: false, hint: "URL da matéria publicada em outro site" }
       - { label: "Imagem de capa", name: "imagem", widget: "image", required: false }
-      - { label: "Conteúdo", name: "body", widget: "markdown" }
+      - { label: "Conteúdo", name: "body", widget: "markdown", required: false, hint: "Use apenas se for escrever aqui" }
