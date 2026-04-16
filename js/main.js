@@ -4,12 +4,10 @@ const BRANCH = 'main';
 
 async function carregarMaterias() {
     try {
-        // Busca lista de arquivos .md na pasta /materias
         const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPOSITORIO}/contents/materias?ref=${BRANCH}`;
         const resposta = await fetch(url);
         const arquivos = await resposta.json();
         
-        // Filtra só arquivos .md
         const materiasMd = arquivos.filter(arquivo => arquivo.name.endsWith('.md'));
         
         if (materiasMd.length === 0) {
@@ -17,7 +15,6 @@ async function carregarMaterias() {
             return;
         }
         
-        // Carrega cada matéria e exibe como card
         const materias = await Promise.all(
             materiasMd.map(async (arquivo) => {
                 const conteudoResposta = await fetch(arquivo.download_url);
@@ -26,10 +23,9 @@ async function carregarMaterias() {
             })
         );
         
-        // Ordena por data (mais nova primeiro)
         materias.sort((a, b) => new Date(b.data) - new Date(a.data));
         
-        // Renderiza os cards
+        // CÓDIGO NOVO COM SUPORTE A LINK EXTERNO
         const html = materias.map(materia => `
             <div class="card-materia">
                 ${materia.imagem ? `<img src="${materia.imagem}" class="card-imagem" alt="${materia.titulo}">` : '<div class="card-imagem" style="background:#ecf0f1"></div>'}
@@ -37,7 +33,10 @@ async function carregarMaterias() {
                     <h3 class="card-titulo">${materia.titulo}</h3>
                     <div class="card-data">${formatarData(materia.data)}</div>
                     <p class="card-resumo">${materia.resumo}</p>
-                    <a href="materia.html?arquivo=${materia.arquivo}" class="card-link">Ler matéria completa →</a>
+                    ${materia.link ? 
+                        `<a href="${materia.link}" target="_blank" class="card-link">Ler no site original →</a>` : 
+                        `<a href="materia.html?arquivo=${materia.arquivo}" class="card-link">Ler matéria completa →</a>`
+                    }
                 </div>
             </div>
         `).join('');
@@ -51,7 +50,6 @@ async function carregarMaterias() {
 }
 
 function extrairMetadata(conteudoMd, nomeArquivo) {
-    // Extrai dados do frontmatter (formato YAML entre ---)
     const frontmatterRegex = /^---\n([\s\S]*?)\n---/;
     const match = conteudoMd.match(frontmatterRegex);
     
@@ -60,6 +58,7 @@ function extrairMetadata(conteudoMd, nomeArquivo) {
         data: '2024-01-01',
         resumo: 'Sem resumo',
         imagem: '',
+        link: '',
         arquivo: nomeArquivo
     };
     
@@ -69,11 +68,13 @@ function extrairMetadata(conteudoMd, nomeArquivo) {
         const dataMatch = frontmatter.match(/data:\s*(.+)/);
         const resumoMatch = frontmatter.match(/resumo:\s*(.+)/);
         const imagemMatch = frontmatter.match(/imagem:\s*(.+)/);
+        const linkMatch = frontmatter.match(/link:\s*(.+)/);
         
         if (tituloMatch) metadata.titulo = tituloMatch[1];
         if (dataMatch) metadata.data = dataMatch[1];
         if (resumoMatch) metadata.resumo = resumoMatch[1];
         if (imagemMatch) metadata.imagem = imagemMatch[1];
+        if (linkMatch) metadata.link = linkMatch[1];
     }
     
     return metadata;

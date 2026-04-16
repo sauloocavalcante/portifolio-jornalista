@@ -1,6 +1,6 @@
 ---
 titulo: "Minha primeira matéria"
-data: "2024-10-15"
+data: 2024-10-15
 resumo: "Este é um exemplo de como suas matérias vão aparecer"
 imagem: ""
 ---
