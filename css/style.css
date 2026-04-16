@@ -620,3 +620,33 @@ footer {
         height: 40px;
     }
 }
+
+/* Responsividade para a página Sobre - empilhar tudo no celular */
+@media (max-width: 768px) {
+    .sobre-grid,
+    .sobre-grid.reverse {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        text-align: center;
+    }
+
+    .sobre-imagem {
+        order: -1; /* Garante que a imagem venha primeiro em ambos os blocos */
+    }
+
+    .sobre-grid.reverse .sobre-imagem {
+        order: -1; /* Mesmo no bloco espelhado, imagem fica em cima */
+    }
+
+    .sobre-texto h2::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .sobre-texto ul {
+        text-align: left;
+        display: inline-block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
