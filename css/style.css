@@ -35,7 +35,7 @@ header {
     overflow: hidden;
 }
 
-header::before {
+/* header::before {
     content: '';
     position: absolute;
     top: -50%;
@@ -44,7 +44,7 @@ header::before {
     height: 200%;
     background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
     animation: rotate 20s linear infinite;
-}
+} */
 
 @keyframes gradientShift {
     0% {
@@ -291,6 +291,29 @@ article img {
 
 article img:hover {
     transform: scale(1.02);
+}
+
+.card-botoes {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+}
+
+.card-link.externo {
+    color: #8b6cb0;
+}
+.card-link.externo:hover {
+    color: #4a2c6d;
+}
+
+.link-externo-aviso {
+    background: #f5f0f7;
+    padding: 0.8rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    text-align: center;
 }
 
 /* Página Sobre */

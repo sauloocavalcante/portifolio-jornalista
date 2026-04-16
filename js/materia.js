@@ -11,20 +11,20 @@ async function carregarMateria() {
         document.getElementById('materia-completa').innerHTML = '<p>Matéria não encontrada.</p>';
         return;
     }
-    
+
     try {
         const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPOSITORIO}/contents/materias/${nomeArquivo}?ref=${BRANCH}`;
         const resposta = await fetch(url);
         const arquivo = await resposta.json();
         const conteudo = decodeURIComponent(escape(atob(arquivo.content.replace(/\n/g, ''))));
-        
+
         // Extrai metadata e conteúdo
         const { metadata, conteudoHtml } = processarMarkdown(conteudo);
-        
+
         // Atualiza título da página
         document.title = `${metadata.titulo} - Portfólio Jornalístico`;
         document.getElementById('titulo-pagina').textContent = metadata.titulo;
-        
+
         // Renderiza matéria
         const html = `
             <h1>${metadata.titulo}</h1>
@@ -34,9 +34,9 @@ async function carregarMateria() {
                 ${conteudoHtml}
             </div>
         `;
-        
+
         document.getElementById('materia-completa').innerHTML = html;
-        
+
     } catch (erro) {
         console.error('Erro ao carregar matéria:', erro);
         document.getElementById('materia-completa').innerHTML = '<p>Erro ao carregar matéria.</p>';
@@ -47,7 +47,7 @@ function processarMarkdown(mdTexto) {
     // Remove frontmatter
     const frontmatterRegex = /^---\n[\s\S]*?\n---\n/;
     let conteudo = mdTexto.replace(frontmatterRegex, '');
-    
+
     // Extrai metadata novamente (reaproveita função do main.js)
     const frontmatterMatch = mdTexto.match(/^---\n([\s\S]*?)\n---/);
     let metadata = {
@@ -56,22 +56,22 @@ function processarMarkdown(mdTexto) {
         resumo: '',
         imagem: ''
     };
-    
+
     if (frontmatterMatch) {
         const frontmatter = frontmatterMatch[1];
         const tituloMatch = frontmatter.match(/titulo:\s*(.+)/);
         const dataMatch = frontmatter.match(/data:\s*(.+)/);
         const resumoMatch = frontmatter.match(/resumo:\s*(.+)/);
         const imagemMatch = frontmatter.match(/imagem:\s*(.+)/);
-        
+
         if (tituloMatch) metadata.titulo = tituloMatch[1];
         if (dataMatch) metadata.data = dataMatch[1];
         if (resumoMatch) metadata.resumo = resumoMatch[1];
         if (imagemMatch) metadata.imagem = imagemMatch[1];
     }
-    
+
     // Converte Markdown básico para HTML
-    let html = conteudo;    
+    let html = conteudo;
     html = html.replace(/^# (.*$)/gm, '<h1>$1</h1>');
     html = html.replace(/^## (.*$)/gm, '<h2>$1</h2>');
     html = html.replace(/^### (.*$)/gm, '<h3>$1</h3>');
@@ -84,7 +84,7 @@ function processarMarkdown(mdTexto) {
     html = html.replace(/\n\n/g, '</p><p>');
     html = '<p>' + html + '</p>';
     html = html.replace(/<p><\/p>/g, '');
-    
+
     return { metadata, conteudoHtml: html };
 }
 
