@@ -1,6 +1,5 @@
 ---
-titulo: "Novos olhares em cena: Mostra Primeira Vista revela talentos do cinema
-  alagoano"
+titulo: "Novos olhares em cena: Mostra Primeira Vista revela talentos do cinema de AL"
 data: 2026-07-26
 resumo: Fazer cinema também é aprender a transformar limitações em escolhas.
   Para quem está começando, cada produção reúne descobertas que vão da escrita
