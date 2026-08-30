@@ -10,7 +10,7 @@ public_folder: "/imagens"
 collections:
   - name: "materias"
     label: "Matérias"
-    folder: "materias"
+    folder: "conteudos/materias"
     create: true
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
     fields:
@@ -19,4 +19,43 @@ collections:
       - { label: "Resumo", name: "resumo", widget: "text" }
       - { label: "Link externo", name: "link", widget: "string", required: false, hint: "URL da matéria publicada em outro site" }
       - { label: "Imagem de capa", name: "imagem", widget: "image", required: false }
-      - { label: "Conteúdo", name: "body", widget: "markdown", required: false, hint: "Use apenas se for escrever aqui" }
+      - { label: "Conteúdo", name: "body", widget: "markdown", required: false }
+
+  - name: "reportagens"
+    label: "Reportagens"
+    folder: "conteudos/reportagens"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - { label: "Título", name: "titulo", widget: "string" }
+      - { label: "Data", name: "data", widget: "datetime", format: "YYYY-MM-DD" }
+      - { label: "Resumo", name: "resumo", widget: "text" }
+      - { label: "Link externo", name: "link", widget: "string", required: false }
+      - { label: "Imagem de capa", name: "imagem", widget: "image", required: false }
+      - { label: "Conteúdo", name: "body", widget: "markdown", required: false }
+
+  - name: "artigos-opiniao"
+    label: "Artigos de opinião"
+    folder: "conteudos/artigos-opiniao"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - { label: "Título", name: "titulo", widget: "string" }
+      - { label: "Data", name: "data", widget: "datetime", format: "YYYY-MM-DD" }
+      - { label: "Resumo", name: "resumo", widget: "text" }
+      - { label: "Link externo", name: "link", widget: "string", required: false }
+      - { label: "Imagem de capa", name: "imagem", widget: "image", required: false }
+      - { label: "Conteúdo", name: "body", widget: "markdown", required: false }
+
+  - name: "resenhas"
+    label: "Resenhas"
+    folder: "conteudos/resenhas"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - { label: "Título", name: "titulo", widget: "string" }
+      - { label: "Data", name: "data", widget: "datetime", format: "YYYY-MM-DD" }
+      - { label: "Resumo", name: "resumo", widget: "text" }
+      - { label: "Link externo", name: "link", widget: "string", required: false }
+      - { label: "Imagem de capa", name: "imagem", widget: "image", required: false }
+      - { label: "Conteúdo", name: "body", widget: "markdown", required: false }

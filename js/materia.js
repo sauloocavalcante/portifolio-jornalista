@@ -1,95 +1,78 @@
-// Pega o nome do arquivo da URL
+const SITE_CONFIG = window.SITE_CONFIG || {
+    githubUsername: 'sauloocavalcante',
+    repositorio: 'portifolio-jornalista',
+    branch: 'main',
+    tiposPermitidos: ['materias', 'reportagens', 'artigos-opiniao', 'resenhas'],
+    labels: {
+        materias: 'Matérias',
+        reportagens: 'Reportagens',
+        'artigos-opiniao': 'Artigos de opinião',
+        resenhas: 'Resenhas'
+    },
+    baseConteudosPath: 'conteudos'
+};
+
+const GITHUB_USERNAME = SITE_CONFIG.githubUsername;
+const REPOSITORIO = SITE_CONFIG.repositorio;
+const BRANCH = SITE_CONFIG.branch;
+const TIPOS_PERMITIDOS = SITE_CONFIG.tiposPermitidos;
+
 const urlParams = new URLSearchParams(window.location.search);
+const tipo = urlParams.get('tipo') || 'materias';
 const nomeArquivo = urlParams.get('arquivo');
 
-const GITHUB_USERNAME = 'sauloocavalcante';
-const REPOSITORIO = 'portifolio-jornalista';
-const BRANCH = 'main';
-
-async function carregarMateria() {
-    if (!nomeArquivo) {
-        document.getElementById('materia-completa').innerHTML = '<p>Matéria não encontrada.</p>';
-        return;
-    }
-
-    try {
-        const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPOSITORIO}/contents/materias/${nomeArquivo}?ref=${BRANCH}`;
-        const resposta = await fetch(url);
-        const arquivo = await resposta.json();
-        const conteudo = decodeURIComponent(escape(atob(arquivo.content.replace(/\n/g, ''))));
-
-        // Extrai metadata e conteúdo
-        const { metadata, conteudoHtml } = processarMarkdown(conteudo);
-
-        // Atualiza título da página
-        document.title = `${metadata.titulo} - Portfólio Jornalístico`;
-        document.getElementById('titulo-pagina').textContent = metadata.titulo;
-
-        // Renderiza matéria
-        const html = `
-            <h1>${metadata.titulo}</h1>
-            <div class="data-materia">${formatarData(metadata.data)}</div>
-            ${metadata.imagem ? `<img src="${metadata.imagem}" alt="${metadata.titulo}">` : ''}
-            <div class="conteudo-materia">
-                ${conteudoHtml}
-            </div>
-        `;
-
-        document.getElementById('materia-completa').innerHTML = html;
-
-    } catch (erro) {
-        console.error('Erro ao carregar matéria:', erro);
-        document.getElementById('materia-completa').innerHTML = '<p>Erro ao carregar matéria.</p>';
-    }
+function validarTipo(tipoInformado) {
+    return typeof tipoInformado === 'string' && TIPOS_PERMITIDOS.includes(tipoInformado);
 }
 
-function processarMarkdown(mdTexto) {
-    // Remove frontmatter
-    const frontmatterRegex = /^---\n[\s\S]*?\n---\n/;
-    let conteudo = mdTexto.replace(frontmatterRegex, '');
+function normalizarValorCampo(valor) {
+    if (!valor) return '';
+    return String(valor).replace(/^['"]|['"]$/g, '').trim();
+}
 
-    // Extrai metadata novamente (reaproveita função do main.js)
-    const frontmatterMatch = mdTexto.match(/^---\n([\s\S]*?)\n---/);
-    let metadata = {
+function removerFrontmatter(conteudoMd) {
+    return conteudoMd.replace(/^---\s*\n[\s\S]*?\n---\s*\n?/, '').trim();
+}
+
+function extrairMetadata(conteudoMd) {
+    const frontmatterRegex = /^---\s*\n([\s\S]*?)\n---\s*\n?/;
+    const match = conteudoMd.match(frontmatterRegex);
+    const metadata = {
         titulo: 'Sem título',
         data: '2024-01-01',
         resumo: '',
-        imagem: ''
+        imagem: '',
+        link: ''
     };
 
-    if (frontmatterMatch) {
-        const frontmatter = frontmatterMatch[1];
-        const tituloMatch = frontmatter.match(/titulo:\s*(.+)/);
-        const dataMatch = frontmatter.match(/data:\s*(.+)/);
-        const resumoMatch = frontmatter.match(/resumo:\s*(.+)/);
-        const imagemMatch = frontmatter.match(/imagem:\s*(.+)/);
+    if (!match) return metadata;
 
-        if (tituloMatch) metadata.titulo = tituloMatch[1];
-        if (dataMatch) metadata.data = dataMatch[1];
-        if (resumoMatch) metadata.resumo = resumoMatch[1];
-        if (imagemMatch) metadata.imagem = imagemMatch[1];
-    }
+    const frontmatter = match[1];
+    const tituloMatch = frontmatter.match(/titulo:\s*(.+)/i);
+    const dataMatch = frontmatter.match(/data:\s*(.+)/i);
+    const resumoMatch = frontmatter.match(/resumo:\s*(.+)/i);
+    const imagemMatch = frontmatter.match(/imagem:\s*(.+)/i);
+    const linkMatch = frontmatter.match(/link:\s*(.+)/i);
 
-    // Converte Markdown básico para HTML
-    let html = conteudo;
-    html = html.replace(/^# (.*$)/gm, '<h1>$1</h1>');
-    html = html.replace(/^## (.*$)/gm, '<h2>$1</h2>');
-    html = html.replace(/^### (.*$)/gm, '<h3>$1</h3>');
-    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
-    html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>');
-    html = html.replace(/^\> (.*$)/gm, '<blockquote>$1</blockquote>');
-    html = html.replace(/^\- (.*$)/gm, '<li>$1</li>');
-    html = html.replace(/(<li>[\s\S]*<\/li>)/, '<ul>$1</ul>');
-    html = html.replace(/\n\n/g, '</p><p>');
-    html = '<p>' + html + '</p>';
-    html = html.replace(/<p><\/p>/g, '');
+    if (tituloMatch) metadata.titulo = normalizarValorCampo(tituloMatch[1]);
+    if (dataMatch) metadata.data = normalizarValorCampo(dataMatch[1]);
+    if (resumoMatch) metadata.resumo = normalizarValorCampo(resumoMatch[1]);
+    if (imagemMatch) metadata.imagem = normalizarValorCampo(imagemMatch[1]);
+    if (linkMatch) metadata.link = normalizarValorCampo(linkMatch[1]);
 
-    return { metadata, conteudoHtml: html };
+    return metadata;
 }
 
 function formatarData(dataString) {
-    const data = new Date(dataString);
+    if (!dataString) return 'Data indisponível';
+
+    const valor = String(dataString).trim();
+    const data = new Date(/^-?\d{4}-\d{2}-\d{2}$/.test(valor) ? `${valor}T12:00:00` : valor);
+
+    if (Number.isNaN(data.getTime())) {
+        return valor;
+    }
+
     return data.toLocaleDateString('pt-BR', {
         day: '2-digit',
         month: 'long',
@@ -97,4 +80,110 @@ function formatarData(dataString) {
     });
 }
 
-carregarMateria();
+function normalizarArquivo(nomeArquivo) {
+    if (!nomeArquivo) return '';
+    return nomeArquivo.replace(/\.md$/i, '');
+}
+
+function escapeHtml(valor) {
+    return String(valor || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function processarMarkdown(mdTexto) {
+    const textoLimpo = removerFrontmatter(mdTexto);
+    if (typeof window.marked !== 'undefined') {
+        const html = window.marked.parse(textoLimpo, {
+            breaks: true,
+            gfm: true,
+            headerIds: false
+        });
+        if (window.DOMPurify) {
+            return window.DOMPurify.sanitize(html);
+        }
+        return html;
+    }
+
+    return `<p>${escapeHtml(textoLimpo).replace(/\n/g, '<br>')}</p>`;
+}
+
+function atualizarMetaDescricao(descricao) {
+    let meta = document.querySelector('meta[name="description"]');
+    if (!meta) {
+        meta = document.createElement('meta');
+        meta.name = 'description';
+        document.head.appendChild(meta);
+    }
+    meta.content = descricao;
+}
+
+async function carregarConteudo() {
+    const container = document.getElementById('materia-completa');
+
+    if (!container) return;
+
+    if (!validarTipo(tipo)) {
+        container.innerHTML = '<p>Categoria de conteúdo inválida.</p>';
+        return;
+    }
+
+    if (!nomeArquivo) {
+        container.innerHTML = '<p>Conteúdo não encontrado.</p>';
+        return;
+    }
+
+    try {
+        const arquivoNome = normalizarArquivo(nomeArquivo);
+        const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPOSITORIO}/contents/${SITE_CONFIG.baseConteudosPath}/${tipo}/${arquivoNome}.md?ref=${BRANCH}`;
+        const resposta = await fetch(url);
+
+        if (!resposta.ok) {
+            if (resposta.status === 404) {
+                container.innerHTML = '<p>Conteúdo não encontrado.</p>';
+                return;
+            }
+            throw new Error(`Conteúdo não encontrado: ${resposta.status}`);
+        }
+
+        const arquivo = await resposta.json();
+        const conteudoBase64 = arquivo.content || '';
+        const decodificado = atob(conteudoBase64.replace(/\s/g, ''));
+        const texto = decodeURIComponent(escape(decodificado));
+        const metadata = extrairMetadata(texto);
+        const conteudoHtml = processarMarkdown(texto);
+
+        document.title = `${metadata.titulo} - Portfólio Jornalístico`;
+        const tituloPagina = document.getElementById('titulo-pagina');
+        if (tituloPagina) {
+            tituloPagina.textContent = metadata.titulo;
+        }
+
+        atualizarMetaDescricao(metadata.resumo || `Leitura de ${metadata.titulo}.`);
+
+        const imagemHtml = metadata.imagem
+            ? `<img src="${metadata.imagem}" alt="${escapeHtml(metadata.titulo)}">`
+            : '';
+
+        const botaoExterno = metadata.link
+            ? `<p class="link-externo-aviso"><a href="${metadata.link}" target="_blank" rel="noopener noreferrer">Leia a matéria completa no site original →</a></p>`
+            : '';
+
+        container.innerHTML = `
+            <h1>${escapeHtml(metadata.titulo)}</h1>
+            <div class="data-materia">${formatarData(metadata.data)}</div>
+            ${imagemHtml}
+            ${botaoExterno}
+            <div class="conteudo-materia">${conteudoHtml}</div>
+        `;
+    } catch (erro) {
+        console.error('Erro ao carregar conteúdo:', erro);
+        container.innerHTML = '<p>Erro ao carregar conteúdo. Verifique se o arquivo existe ou se a categoria está correta.</p>';
+    }
+}
+
+window.carregarConteudo = carregarConteudo;
+carregarConteudo();
