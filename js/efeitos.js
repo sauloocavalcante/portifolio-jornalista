@@ -14,7 +14,7 @@ const observer = new IntersectionObserver((entries) => {
     });
 }, observerOptions);
 
-document.querySelectorAll('.card-materia, .sobre-page, #contato').forEach(el => {
+document.querySelectorAll('.card-materia, .card-categoria, .sobre-page, #contato, .item-conteudo').forEach(el => {
     el.style.opacity = '0';
     el.style.transform = 'translateY(30px)';
     el.style.transition = 'all 0.6s ease';

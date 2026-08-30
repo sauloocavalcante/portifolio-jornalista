@@ -1,130 +1,57 @@
-const GITHUB_USERNAME = 'sauloocavalcante';
-const REPOSITORIO = 'portifolio-jornalista';
-const BRANCH = 'main';
+const SITE_CONFIG = window.SITE_CONFIG || {
+    githubUsername: 'sauloocavalcante',
+    repositorio: 'portifolio-jornalista',
+    branch: 'main',
+    tiposPermitidos: ['materias', 'reportagens', 'artigos-opiniao', 'resenhas'],
+    labels: {
+        materias: 'Matérias',
+        reportagens: 'Reportagens',
+        'artigos-opiniao': 'Artigos de opinião',
+        resenhas: 'Resenhas'
+    },
+    baseConteudosPath: 'conteudos'
+};
 
-async function carregarMaterias() {
-    try {
-        const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPOSITORIO}/contents/materias?ref=${BRANCH}`;
-        const resposta = await fetch(url);
-        const arquivos = await resposta.json();
+const GITHUB_USERNAME = SITE_CONFIG.githubUsername;
+const REPOSITORIO = SITE_CONFIG.repositorio;
+const BRANCH = SITE_CONFIG.branch;
+const TIPOS_PERMITIDOS = SITE_CONFIG.tiposPermitidos;
 
-        const materiasMd = arquivos.filter(arquivo => arquivo.name.endsWith('.md'));
-
-        if (materiasMd.length === 0) {
-            document.getElementById('lista-materias').innerHTML = '<p>Nenhuma matéria publicada ainda.</p>';
-            return;
-        }
-
-        const materias = await Promise.all(
-            materiasMd.map(async (arquivo) => {
-                const conteudoResposta = await fetch(arquivo.download_url);
-                const conteudo = await conteudoResposta.text();
-                return extrairMetadata(conteudo, arquivo.name);
-            })
-        );
-
-        materias.sort((a, b) => new Date(b.data) - new Date(a.data));
-
-        // CÓDIGO NOVO COM SUPORTE A LINK EXTERNO
-        const html = materias.map(materia => {
-            const temConteudo = materia.temConteudoInterno; // novo campo
-            const temLink = !!materia.link;
-
-            let botoes = '';
-            if (temConteudo && temLink) {
-                botoes = `
-            <div class="card-botoes">
-                <a href="materia.html?arquivo=${materia.arquivo}" class="card-link">Ler matéria completa →</a>
-                <a href="${materia.link}" target="_blank" class="card-link externo">Ver no site original →</a>
-            </div>
-        `;
-            } else if (temLink) {
-                botoes = `<a href="${materia.link}" target="_blank" class="card-link">Ver no site original →</a>`;
-            } else if (temConteudo) {
-                botoes = `<a href="materia.html?arquivo=${materia.arquivo}" class="card-link">Ler matéria completa →</a>`;
-            }
-
-            return `
-        <div class="card-materia">
-            ${materia.imagem ? `<img src="${materia.imagem}" class="card-imagem" alt="${materia.titulo}">` : '<div class="card-imagem" style="background:#ecf0f1"></div>'}
-            <div class="card-conteudo">
-                <h3 class="card-titulo">${materia.titulo}</h3>
-                <div class="card-data">${formatarData(materia.data)}</div>
-                <p class="card-resumo">${materia.resumo}</p>
-                ${botoes}
-            </div>
-        </div>
-    `;
-        }).join('');
-
-        document.getElementById('lista-materias').innerHTML = html;
-
-    } catch (erro) {
-        console.error('Erro ao carregar matérias:', erro);
-        document.getElementById('lista-materias').innerHTML = '<p>Erro ao carregar matérias. Tente novamente mais tarde.</p>';
-    }
+function validarTipo(tipo) {
+    return typeof tipo === 'string' && TIPOS_PERMITIDOS.includes(tipo);
 }
 
-function extrairMetadata(conteudoMd, nomeArquivo) {
-    const frontmatterRegex = /^---\n([\s\S]*?)\n---/;
-    const match = conteudoMd.match(frontmatterRegex);
-    
-    // Remove frontmatter para verificar se há body não vazio
-    let body = conteudoMd.replace(frontmatterRegex, '').trim();
-    const temConteudoInterno = body.length > 0 && body !== '';
-    
-    let metadata = {
-        titulo: 'Sem título',
-        data: '2024-01-01',
-        resumo: 'Sem resumo',
-        imagem: '',
-        link: '',
-        arquivo: nomeArquivo,
-        temConteudoInterno: temConteudoInterno
+function rotuloVazio(tipo) {
+    const rótulos = {
+        materias: 'matéria',
+        reportagens: 'reportagem',
+        'artigos-opiniao': 'artigo de opinião',
+        resenhas: 'resenha'
     };
-    
-    if (match) {
-        const frontmatter = match[1];
-        const tituloMatch = frontmatter.match(/titulo:\s*(.+)/);
-        const dataMatch = frontmatter.match(/data:\s*(.+)/);
-        const resumoMatch = frontmatter.match(/resumo:\s*(.+)/);
-        const imagemMatch = frontmatter.match(/imagem:\s*(.+)/);
-        const linkMatch = frontmatter.match(/link:\s*(.+)/);
-        
-        if (tituloMatch) metadata.titulo = tituloMatch[1];
-        if (dataMatch) metadata.data = dataMatch[1];
-        if (resumoMatch) metadata.resumo = resumoMatch[1];
-        if (imagemMatch) metadata.imagem = imagemMatch[1];
-        if (linkMatch) metadata.link = linkMatch[1];
-    }
-    
-    return metadata;
+
+    return rótulos[tipo] || (SITE_CONFIG.labels[tipo] || tipo).toLowerCase();
 }
 
-function corrigirEncoding(texto) {
-    if (!texto) return texto;
+function normalizarArquivoUrl(nomeArquivo) {
+    if (!nomeArquivo) return '';
+    return nomeArquivo.replace(/\.md$/i, '');
+}
 
-    return texto
-        .replace(/Ã¡/g, 'á')
-        .replace(/Ã©/g, 'é')
-        .replace(/Ã­/g, 'í')
-        .replace(/Ã³/g, 'ó')
-        .replace(/Ãº/g, 'ú')
-        .replace(/Ã£/g, 'ã')
-        .replace(/Ãµ/g, 'õ')
-        .replace(/Ã§/g, 'ç')
-        .replace(/Ã€/g, 'À')
-        .replace(/Ã‰/g, 'É')
-        .replace(/Ã/g, 'Í')
-        .replace(/Ã“/g, 'Ó')
-        .replace(/Ãš/g, 'Ú')
-        .replace(/Ãƒ/g, 'Ã')
-        .replace(/Ã•/g, 'Õ')
-        .replace(/Ã‡/g, 'Ç');
+function normalizarValorCampo(valor) {
+    if (!valor) return '';
+    return String(valor).replace(/^['"]|['"]$/g, '').trim();
 }
 
 function formatarData(dataString) {
-    const data = new Date(dataString);
+    if (!dataString) return 'Data indisponível';
+
+    const valor = String(dataString).trim();
+    const data = new Date(/^-?\d{4}-\d{2}-\d{2}$/.test(valor) ? `${valor}T12:00:00` : valor);
+
+    if (Number.isNaN(data.getTime())) {
+        return valor;
+    }
+
     return data.toLocaleDateString('pt-BR', {
         day: '2-digit',
         month: 'long',
@@ -132,5 +59,127 @@ function formatarData(dataString) {
     });
 }
 
-// Carrega as matérias quando a página abrir
-carregarMaterias();
+function extrairMetadata(conteudoMd, nomeArquivo) {
+    const frontmatterRegex = /^---\s*\n([\s\S]*?)\n---\s*\n?/;
+    const match = conteudoMd.match(frontmatterRegex);
+    const body = conteudoMd.replace(frontmatterRegex, '').trim();
+
+    const metadata = {
+        titulo: 'Sem título',
+        data: '2024-01-01',
+        resumo: 'Sem resumo',
+        imagem: '',
+        link: '',
+        arquivo: normalizarArquivoUrl(nomeArquivo),
+        temConteudoInterno: body.length > 0,
+        tipo: 'materias'
+    };
+
+    if (match) {
+        const frontmatter = match[1];
+        const tituloMatch = frontmatter.match(/titulo:\s*(.+)/i);
+        const dataMatch = frontmatter.match(/data:\s*(.+)/i);
+        const resumoMatch = frontmatter.match(/resumo:\s*(.+)/i);
+        const imagemMatch = frontmatter.match(/imagem:\s*(.+)/i);
+        const linkMatch = frontmatter.match(/link:\s*(.+)/i);
+
+        if (tituloMatch) metadata.titulo = normalizarValorCampo(tituloMatch[1]);
+        if (dataMatch) metadata.data = normalizarValorCampo(dataMatch[1]);
+        if (resumoMatch) metadata.resumo = normalizarValorCampo(resumoMatch[1]);
+        if (imagemMatch) metadata.imagem = normalizarValorCampo(imagemMatch[1]);
+        if (linkMatch) metadata.link = normalizarValorCampo(linkMatch[1]);
+    }
+
+    return metadata;
+}
+
+function construirUrlConteudo(tipo, nomeArquivo) {
+    const arquivo = normalizarArquivoUrl(nomeArquivo);
+    return `materia.html?tipo=${encodeURIComponent(tipo)}&arquivo=${encodeURIComponent(arquivo)}`;
+}
+
+function renderizarCard(conteudo, tipo) {
+    const arquivo = normalizarArquivoUrl(conteudo.arquivo || conteudo.name);
+    const url = construirUrlConteudo(tipo, arquivo);
+    const imagem = conteudo.imagem ? `<img src="${conteudo.imagem}" class="card-imagem" alt="${conteudo.titulo}">` : '<div class="card-imagem" style="background:linear-gradient(135deg, #e8ddf5, #d4c5e8)"></div>';
+
+    return `
+        <a class="card-materia" href="${url}" aria-label="Abrir ${conteudo.titulo}">
+            ${imagem}
+            <div class="card-conteudo">
+                <div class="card-meta">
+                    <span class="card-tag">${SITE_CONFIG.labels[tipo] || tipo}</span>
+                    ${conteudo.link ? '<span class="card-tag externo">Externo</span>' : ''}
+                </div>
+                <h3 class="card-titulo">${conteudo.titulo}</h3>
+                <div class="card-data">${formatarData(conteudo.data)}</div>
+                <p class="card-resumo">${conteudo.resumo}</p>
+                <span class="card-link">Ler conteúdo completo →</span>
+            </div>
+        </a>
+    `;
+}
+
+async function carregarConteudos(tipo = 'materias', containerId = 'lista-materias') {
+    const container = document.getElementById(containerId);
+
+    if (!container) return;
+
+    if (!validarTipo(tipo)) {
+        container.innerHTML = '<p>Categoria não encontrada.</p>';
+        return;
+    }
+
+    try {
+        const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPOSITORIO}/contents/${SITE_CONFIG.baseConteudosPath}/${tipo}?ref=${BRANCH}`;
+        const resposta = await fetch(url);
+
+        if (!resposta.ok) {
+            if (resposta.status === 404) {
+                container.innerHTML = `<p>Nenhuma ${rotuloVazio(tipo)} publicada ainda.</p>`;
+                return;
+            }
+            throw new Error(`Erro ao buscar ${tipo}: ${resposta.status}`);
+        }
+
+        const arquivos = await resposta.json();
+        const arquivosMd = Array.isArray(arquivos)
+            ? arquivos.filter(arquivo => typeof arquivo.name === 'string' && arquivo.name.toLowerCase().endsWith('.md'))
+            : [];
+
+        if (arquivosMd.length === 0) {
+            container.innerHTML = `<p>Nenhuma ${rotuloVazio(tipo)} publicada ainda.</p>`;
+            return;
+        }
+
+        const conteudos = await Promise.all(
+            arquivosMd.map(async (arquivo) => {
+                const conteudoResposta = await fetch(arquivo.download_url);
+                const conteudo = await conteudoResposta.text();
+                const metadata = extrairMetadata(conteudo, arquivo.name);
+                return {
+                    ...metadata,
+                    arquivo: arquivo.name,
+                    tipo
+                };
+            })
+        );
+
+        conteudos.sort((a, b) => new Date(b.data || '2024-01-01') - new Date(a.data || '2024-01-01'));
+        container.innerHTML = conteudos.map(conteudo => renderizarCard(conteudo, tipo)).join('');
+    } catch (erro) {
+        console.error('Erro ao carregar conteúdos:', erro);
+        container.innerHTML = '<p>Erro ao carregar conteúdos. Tente novamente mais tarde.</p>';
+    }
+}
+
+async function carregarMaterias() {
+    return carregarConteudos('materias', 'lista-materias');
+}
+
+window.carregarConteudos = carregarConteudos;
+window.carregarMaterias = carregarMaterias;
+
+if (document.getElementById('lista-materias')) {
+    carregarMaterias();
+}
