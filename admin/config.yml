@@ -1,3 +1,4 @@
+```yaml
 backend:
   name: github
   repo: sauloocavalcante/portifolio-jornalista
@@ -10,11 +11,12 @@ public_folder: "/imagens"
 collections:
   - name: "materias"
     label: "Matérias"
-    folder: "conteudos/index"
+    folder: "conteudos/materias"
     create: true
-    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    slug: "{{slug}}"
     fields:
       - { label: "Título", name: "titulo", widget: "string" }
+      - { label: "URL/Slug", name: "slug", widget: "string", hint: "Ex.: acidente-br-101-sao-miguel" }
       - { label: "Data", name: "data", widget: "datetime", format: "YYYY-MM-DD" }
       - { label: "Resumo", name: "resumo", widget: "text" }
       - { label: "Link externo", name: "link", widget: "string", required: false, hint: "URL da matéria publicada em outro site" }
@@ -25,9 +27,10 @@ collections:
     label: "Reportagens"
     folder: "conteudos/reportagens"
     create: true
-    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    slug: "{{slug}}"
     fields:
       - { label: "Título", name: "titulo", widget: "string" }
+      - { label: "URL/Slug", name: "slug", widget: "string", hint: "Ex.: moradores-flexais-resistem-apagamento" }
       - { label: "Data", name: "data", widget: "datetime", format: "YYYY-MM-DD" }
       - { label: "Resumo", name: "resumo", widget: "text" }
       - { label: "Link externo", name: "link", widget: "string", required: false }
@@ -38,9 +41,10 @@ collections:
     label: "Artigos de opinião"
     folder: "conteudos/artigos-opiniao"
     create: true
-    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    slug: "{{slug}}"
     fields:
       - { label: "Título", name: "titulo", widget: "string" }
+      - { label: "URL/Slug", name: "slug", widget: "string", hint: "Ex.: preciso-inteligencia-artificial" }
       - { label: "Data", name: "data", widget: "datetime", format: "YYYY-MM-DD" }
       - { label: "Resumo", name: "resumo", widget: "text" }
       - { label: "Link externo", name: "link", widget: "string", required: false }
@@ -51,11 +55,13 @@ collections:
     label: "Resenhas"
     folder: "conteudos/resenhas"
     create: true
-    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    slug: "{{slug}}"
     fields:
       - { label: "Título", name: "titulo", widget: "string" }
+      - { label: "URL/Slug", name: "slug", widget: "string", hint: "Ex.: diabo-veste-prada-2" }
       - { label: "Data", name: "data", widget: "datetime", format: "YYYY-MM-DD" }
       - { label: "Resumo", name: "resumo", widget: "text" }
       - { label: "Link externo", name: "link", widget: "string", required: false }
       - { label: "Imagem de capa", name: "imagem", widget: "image", required: false }
       - { label: "Conteúdo", name: "body", widget: "markdown", required: false }
+```
