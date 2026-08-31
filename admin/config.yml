@@ -11,7 +11,7 @@ public_folder: "/imagens"
 collections:
   - name: "materias"
     label: "Matérias"
-    folder: "conteudos/index"
+    folder: "conteudos/materias"
     create: true
     slug: "{{slug}}"
     fields:
