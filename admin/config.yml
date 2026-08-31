@@ -63,4 +63,3 @@ collections:
       - { label: "Link externo", name: "link", widget: "string", required: false }
       - { label: "Imagem de capa", name: "imagem", widget: "image", required: false }
       - { label: "Conteúdo", name: "body", widget: "markdown", required: false }
-```
