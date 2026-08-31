@@ -72,8 +72,7 @@ function extrairMetadata(conteudoMd, nomeArquivo) {
 
 function inferirTipoDaPagina() {
     const partes = window.location.pathname.split('/').filter(Boolean);
-    const potencialTipo = partes[partes.length - 1];
-    return TIPOS_PERMITIDOS.includes(potencialTipo) ? potencialTipo : null;
+    return partes.find(parte => TIPOS_PERMITIDOS.includes(parte)) || null;
 }
 
 function rotuloVazio(tipo) {
@@ -87,32 +86,31 @@ function rotuloVazio(tipo) {
     return rótulos[tipo] || (CONFIG.labels[tipo] || tipo).toLowerCase();
 }
 
-function renderizarCard(conteudo, tipo) {
+function renderizarItem(conteudo, tipo) {
     const arquivo = normalizarArquivoNome(conteudo.arquivo || conteudo.name);
-    const url = `../../materia.html?tipo=${encodeURIComponent(tipo)}&arquivo=${encodeURIComponent(arquivo)}`;
+    const paginaRaiz = window.location.pathname.includes('/conteudos/index.html')
+        || window.location.pathname.endsWith('/conteudos/');
+    const url = `${paginaRaiz ? '../' : '../../'}materia.html?tipo=${encodeURIComponent(tipo)}&arquivo=${encodeURIComponent(arquivo)}`;
     const imagem = conteudo.imagem
-        ? `<img src="${conteudo.imagem}" class="card-imagem" alt="${conteudo.titulo}">`
-        : '<div class="card-imagem" style="background:linear-gradient(135deg, #e8ddf5, #d4c5e8)"></div>';
+        ? `<img src="${conteudo.imagem}" class="item-conteudo__imagem" alt="">`
+        : `<div class="item-conteudo__imagem item-conteudo__imagem--${tipo === 'artigos-opiniao' ? 'opiniao' : tipo === 'reportagens' ? 'reportagem' : tipo === 'resenhas' ? 'resenha' : 'materia'}"></div>`;
 
     return `
-        <a class="card-materia" href="${url}" aria-label="Abrir ${conteudo.titulo}">
+        <a class="item-conteudo" href="${url}" aria-label="Ler ${conteudo.titulo}">
             ${imagem}
-            <div class="card-conteudo">
-                <div class="card-meta">
-                    <span class="card-tag">${CONFIG.labels[tipo]}</span>
-                    ${conteudo.link ? '<span class="card-tag externo">Externo</span>' : ''}
-                </div>
-                <h3 class="card-titulo">${conteudo.titulo}</h3>
+            <div class="item-conteudo__conteudo">
+                <span class="item-conteudo__tag">${CONFIG.labels[tipo]}${conteudo.link ? ' · Externo' : ''}</span>
+                <h3>${conteudo.titulo}</h3>
                 <div class="card-data">${formatarData(conteudo.data)}</div>
-                <p class="card-resumo">${conteudo.resumo}</p>
+                <p>${conteudo.resumo}</p>
                 <span class="card-link">Ler conteúdo completo →</span>
             </div>
         </a>
     `;
 }
 
-async function carregarCategoria(tipo) {
-    const container = document.getElementById('lista-conteudos');
+async function carregarCategoria(tipo, containerId = 'lista-conteudos', limite = null) {
+    const container = document.getElementById(containerId);
     if (!container) return;
 
     if (!TIPOS_PERMITIDOS.includes(tipo)) {
@@ -156,7 +154,8 @@ async function carregarCategoria(tipo) {
         );
 
         itens.sort((a, b) => new Date(b.data || '2024-01-01') - new Date(a.data || '2024-01-01'));
-        container.innerHTML = itens.map(item => renderizarCard(item, tipo)).join('');
+        const itensExibidos = limite ? itens.slice(0, limite) : itens;
+        container.innerHTML = itensExibidos.map(item => renderizarItem(item, tipo)).join('');
     } catch (erro) {
         console.error('Erro ao carregar categoria:', erro);
         container.innerHTML = '<p>Erro ao carregar categoria. Tente novamente mais tarde.</p>';
@@ -166,6 +165,10 @@ async function carregarCategoria(tipo) {
 const tipoPagina = inferirTipoDaPagina();
 if (tipoPagina) {
     carregarCategoria(tipoPagina);
+}
+
+if (document.getElementById('lista-reportagens')) {
+    TIPOS_PERMITIDOS.forEach(tipo => carregarCategoria(tipo, `lista-${tipo}`, 3));
 }
 
 window.carregarCategoria = carregarCategoria;

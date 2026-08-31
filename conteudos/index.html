@@ -32,55 +32,23 @@
                     facilitar a navegação e a descoberta de novos materiais.</p>
             </header>
 
-            <section id="materias">
-                <h2>📰 Últimas Matérias</h2>
-                <div id="lista-materias" class="grid-materias">
-                    <!-- As matérias vão aparecer aqui automaticamente -->
-                    <p>Carregando matérias...</p>
-                </div>
-            </section>
-
-            <div class="categoria-grid">
-                <a href="reportagens/" class="card-categoria">
-                    <div class="card-categoria__capa card-categoria__capa--reportagens">
-                        <span class="card-categoria__icon"><i class="fa-solid fa-newspaper"></i></span>
-                    </div>
-                    <div class="card-categoria__body">
-                        <h3>Reportagens</h3>
-                        <p>Textos produzidos a partir de apuração, investigação e cobertura em diferentes temas.</p>
-                    </div>
-                </a>
-
-                <a href="materias/" class="card-categoria">
-                    <div class="card-categoria__capa card-categoria__capa--materias">
-                        <span class="card-categoria__icon"><i class="fa-solid fa-layer-group"></i></span>
-                    </div>
-                    <div class="card-categoria__body">
-                        <h3>Matérias</h3>
-                        <p>Produções jornalísticas em formato de reportagens e coberturas com foco em contexto e
-                            narrativa.</p>
-                    </div>
-                </a>
-
-                <a href="artigos-opiniao/" class="card-categoria">
-                    <div class="card-categoria__capa card-categoria__capa--opiniao">
-                        <span class="card-categoria__icon"><i class="fa-solid fa-pen-fancy"></i></span>
-                    </div>
-                    <div class="card-categoria__body">
-                        <h3>Artigos de opinião</h3>
-                        <p>Textos de análise, posicionamento e debate sobre temas relevantes para a sociedade.</p>
-                    </div>
-                </a>
-
-                <a href="resenhas/" class="card-categoria">
-                    <div class="card-categoria__capa card-categoria__capa--resenhas">
-                        <span class="card-categoria__icon"><i class="fa-solid fa-book-open-reader"></i></span>
-                    </div>
-                    <div class="card-categoria__body">
-                        <h3>Resenhas</h3>
-                        <p>Comentários e apreciações sobre livros, obras e produções culturais que contam histórias.</p>
-                    </div>
-                </a>
+            <div class="secoes-conteudos">
+                <section class="secao-conteudos" id="reportagens">
+                    <div class="secao-conteudos__cabecalho"><h2>Reportagens</h2><a href="reportagens/">Ver todas</a></div>
+                    <div id="lista-reportagens" class="lista-conteudos"><p>Carregando reportagens...</p></div>
+                </section>
+                <section class="secao-conteudos" id="materias">
+                    <div class="secao-conteudos__cabecalho"><h2>Matérias</h2><a href="materias/">Ver todas</a></div>
+                    <div id="lista-materias" class="lista-conteudos"><p>Carregando matérias...</p></div>
+                </section>
+                <section class="secao-conteudos" id="artigos-opiniao">
+                    <div class="secao-conteudos__cabecalho"><h2>Artigos de opinião</h2><a href="artigos-opiniao/">Ver todos</a></div>
+                    <div id="lista-artigos-opiniao" class="lista-conteudos"><p>Carregando artigos...</p></div>
+                </section>
+                <section class="secao-conteudos" id="resenhas">
+                    <div class="secao-conteudos__cabecalho"><h2>Resenhas</h2><a href="resenhas/">Ver todas</a></div>
+                    <div id="lista-resenhas" class="lista-conteudos"><p>Carregando resenhas...</p></div>
+                </section>
             </div>
         </section>
     </main>
@@ -98,6 +66,9 @@
             </div>
         </div>
     </footer>
+    <script src="../js/config.js"></script>
+    <script src="../js/conteudos.js"></script>
+    <script src="../js/efeitos.js"></script>
 </body>
 
 </html>
